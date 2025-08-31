@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("postgresql://neondb_owner:npg_sgF5NE0uLPCy@ep-super-term-abn1167b.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+model Family {
+  id         String      @id @default(cuid())
+  publicId   String     @unique @default(cuid())
+  createdAt  DateTime    @default(now())
+  label      String?
+  rootSymbol String?
+  claimTokens ClaimToken[]
+  fishes     Fish[]
+}
+
+model Fish {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id])
+  name      String?
+  role      String?
+  angle     Float?
+  radius    Float?
+  createdAt DateTime @default(now())
+}
+
+model ClaimToken {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id])
+  token     String   @unique
+  kind      String   // "owner" | "invite"
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
